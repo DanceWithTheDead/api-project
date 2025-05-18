@@ -13,11 +13,17 @@ class AuthController extends Controller
 {
     protected $authService;
 
+    const TOKEN_NAME = 'auth_token';
+
     public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
     }
 
+
+    /**
+     * Register a new user
+     */
     public function register(Request $request)
     {
         $validatedData = $request->validate([
@@ -28,7 +34,7 @@ class AuthController extends Controller
         ]);
 
         $user = $this->authService->registerUser($validatedData);
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
 
         return response()->json([
             'message' => 'Successfully created user!',
@@ -37,6 +43,10 @@ class AuthController extends Controller
         ], 201);
     }
 
+
+    /**
+     * Login user and return token
+     */
     public function login(Request $request)
     {
         $validatedData = $request->validate([
@@ -51,10 +61,17 @@ class AuthController extends Controller
                'email' => ['The provided credentials are incorrect.'],
             ]);
         }
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['token' => $token]);
+        $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
+        return response()->json([
+            'user' => $user,
+            'token' => $token
+        ]);
     }
 
+
+    /**
+     * Logout user (revoke token)
+     */
     public function logOut(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -64,8 +81,10 @@ class AuthController extends Controller
         ]);
     }
 
-    public function show(Request $request)
+    public function getUser(Request $request)
     {
-        return $request->user();
+        return response()->json([
+            $request->user()
+        ]);
     }
 }

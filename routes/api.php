@@ -13,7 +13,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 Route::post('/logout', [AuthController::class, 'logOut'])->middleware('auth:sanctum');
-Route::post('/user', [AuthController::class, 'show'])->middleware('auth:sanctum');
+Route::post('/user', [AuthController::class, 'getUser'])->middleware('auth:sanctum');
 
-Route::post('/post', [PostController::class, 'index']);
+Route::post('/post', [PostController::class, 'index'])->middleware('auth:sanctum');
 Route::post('/post/create', [PostController::class, 'store'])->middleware('auth:sanctum');
