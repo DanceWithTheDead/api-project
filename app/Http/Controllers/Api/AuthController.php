@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterUserRequest;
 use App\Models\User;
 use App\Services\AuthService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Nette\Utils\RegexpException;
-use function Laravel\Prompts\error;
 
 class AuthController extends Controller
 {
@@ -26,41 +27,29 @@ class AuthController extends Controller
     /**
      * Register a new user
      */
-    public function register(Request $request)
+    public function register(RegisterUserRequest $request): JsonResponse
     {
         try {
-            $validatedData = $request->validate([
-                'first_name' => 'required|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => [
-                    'required',
-                    'min:8',
-                ],
-            ], [
-                'first_name.required' => 'Поле "Имя" обязательно для заполнения.',
-                'last_name.required' => 'Поле "Фамилия" обязательно для заполнения.',
-                'email.required' => 'Email обязателен.',
-                'email.email' => 'Введите корректный email.',
-                'email.unique' => 'Этот email уже занят.',
-                'password.required' => 'Пароль обязателен.',
-                'password.min' => 'Пароль должен быть не менее 8 символов.',
-            ]);
 
-
-            $user = $this->authService->registerUser($validatedData);
+            $user = $this->authService->registerUser($request->validated());
             $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
 
             return response()->json([
+                'success' => true,
                 'message' => 'Пользователь успешно зарегистрирован',
-                'user' => $user->only(['id', 'first_name', 'last_name', 'email']),
-                'token' => $token,
+                'data' => [
+                    'user' => $user->only(['id', 'first_name', 'last_name', 'email']),
+                    'token' => $token
+                ]
             ], 201);
-        } catch (ValidationException $e) {
+        }  catch (\Exception $e) {
+            Log::error('Registration error: ' . $e->getMessage());
+
             return response()->json([
-               'message' => 'Ошибка валидации',
-               'error' => $e->errors()
-            ],422);
+                'success' => false,
+                'message' => 'Произошла ошибка при регистрации',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
         }
     }
 
