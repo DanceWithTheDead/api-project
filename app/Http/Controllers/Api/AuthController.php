@@ -33,6 +33,7 @@ class AuthController extends Controller
 
             $user = $this->authService->registerUser($request->validated());
             $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
+            \Auth::login($user);
 
             return response()->json([
                 'success' => true,
@@ -57,7 +58,7 @@ class AuthController extends Controller
     /**
      * Login user and return token
      */
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
             'email' => 'required|string|email',
@@ -68,7 +69,7 @@ class AuthController extends Controller
 
         if (!$user || !Hash::check($validatedData['password'], $user->password)) {
             throw ValidationException::withMessages([
-               'email' => ['The provided credentials are incorrect.'],
+               'email' => ['Введите корректные данные'],
             ]);
         }
         $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
@@ -87,7 +88,7 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Successfully logged out'
+            'message' => 'Вы успешно вышли'
         ]);
     }
 
