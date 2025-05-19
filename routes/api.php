@@ -17,3 +17,5 @@ Route::post('/user', [AuthController::class, 'getUser'])->middleware('auth:sanct
 
 Route::post('/post', [PostController::class, 'index'])->middleware('auth:sanctum');
 Route::post('/post/create', [PostController::class, 'store'])->middleware('auth:sanctum');
+Route::get('/post/{post}', [PostController::class, 'show'])->middleware('auth:sanctum');
+Route::delete('/post/{post}', [PostController::class, 'destroy'])->middleware('auth:sanctum');

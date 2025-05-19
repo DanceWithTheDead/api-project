@@ -19,9 +19,12 @@ class PostController extends Controller
         $this->postService = $postService;
     }
 
+    /**
+     * Get posts current auth users.
+     */
     public function index()
     {
-        return Post::all();
+        return auth()->user()->posts;
     }
 
     /**
@@ -43,11 +46,20 @@ class PostController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display post(id) current auth user.
      */
     public function show(string $id)
     {
-        //
+        foreach (auth()->user()->posts as $post){
+            if ($post['id'] == $id){
+                return response()->json([
+                    $post->title,
+                    $post->content
+                ]);
+            }
+        }
+
+
     }
 
     /**
@@ -63,6 +75,16 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        /** @var Post $post */
+        foreach (auth()->user()->posts as $post){
+            if ($post['id'] == $id){
+                $post->delete();
+                return response()->json([
+                    'message' => "deleting is done"
+                ]);
+            }
+        } return response()->json([
+            'message' => 'Post not found'
+    ], 404);
     }
 }
