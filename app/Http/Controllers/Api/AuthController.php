@@ -8,6 +8,8 @@ use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Nette\Utils\RegexpException;
+use function Laravel\Prompts\error;
 
 class AuthController extends Controller
 {
@@ -26,21 +28,40 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $validatedData = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|min:8',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => [
+                    'required',
+                    'min:8',
+                ],
+            ], [
+                'first_name.required' => 'Поле "Имя" обязательно для заполнения.',
+                'last_name.required' => 'Поле "Фамилия" обязательно для заполнения.',
+                'email.required' => 'Email обязателен.',
+                'email.email' => 'Введите корректный email.',
+                'email.unique' => 'Этот email уже занят.',
+                'password.required' => 'Пароль обязателен.',
+                'password.min' => 'Пароль должен быть не менее 8 символов.',
+            ]);
 
-        $user = $this->authService->registerUser($validatedData);
-        $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
 
-        return response()->json([
-            'message' => 'Successfully created user!',
-            'user' => $user,
-            'token' => $token,
-        ], 201);
+            $user = $this->authService->registerUser($validatedData);
+            $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
+
+            return response()->json([
+                'message' => 'Пользователь успешно зарегистрирован',
+                'user' => $user->only(['id', 'first_name', 'last_name', 'email']),
+                'token' => $token,
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+               'message' => 'Ошибка валидации',
+               'error' => $e->errors()
+            ],422);
+        }
     }
 
 
