@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PostCreateRequest;
 use App\Models\Post;
 use App\Services\PostService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -19,6 +21,10 @@ class PostController extends Controller
         $this->postService = $postService;
     }
 
+    public function indexAll()
+    {
+        return Post::all();
+    }
     /**
      * Get posts current auth users.
      */
@@ -30,18 +36,14 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(PostCreateRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:55',
-            'content' => 'required|string|max:255',
-        ]);
-
-        $validated['user_id'] = auth()->id();
-        $post = $this->postService->UserCreatePost($validated);
+        $post = $this->postService->UserCreatePost(
+            $request->validated() + ['user_id' => auth()->id()]
+        );
 
         return response()->json([
-            'post' => $post,
+            'post' => $post
         ], 201);
     }
 
@@ -50,16 +52,17 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        foreach (auth()->user()->posts as $post){
-            if ($post['id'] == $id){
-                return response()->json([
-                    $post->title,
-                    $post->content
-                ]);
-            }
+        $post = auth()->user()->posts->firstWhere('id', $id);
+
+        if ($post) {
+            return response()->json([
+                'title' => $post->title,
+                'content' => $post->content,
+            ]);
         }
-
-
+        return response()->json([
+            'message' => 'Пост не найден'
+        ], 404);
     }
 
     /**

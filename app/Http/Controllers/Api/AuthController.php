@@ -29,29 +29,18 @@ class AuthController extends Controller
      */
     public function register(RegisterUserRequest $request): JsonResponse
     {
-        try {
+        $user = $this->authService->registerUser($request->validated());
+        $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
+        \Auth::login($user);
 
-            $user = $this->authService->registerUser($request->validated());
-            $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
-            \Auth::login($user);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Пользователь успешно зарегистрирован',
-                'data' => [
-                    'user' => $user->only(['id', 'first_name', 'last_name', 'email']),
-                    'token' => $token
-                ]
-            ], 201);
-        }  catch (\Exception $e) {
-            Log::error('Registration error: ' . $e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Произошла ошибка при регистрации',
-                'error' => config('app.debug') ? $e->getMessage() : null
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Пользователь успешно зарегистрирован',
+            'data' => [
+                'user' => $user->only(['id', 'first_name', 'last_name', 'email']),
+                'token' => $token
+            ]
+        ], 201);
     }
 
 
