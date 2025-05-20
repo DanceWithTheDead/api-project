@@ -16,4 +16,11 @@ class PostService
         ]);
     }
 
+    public function UserUpdatePost(Post $post, array $data): Post
+    {
+         $post->update($data);
+
+         return $post->fresh();
+    }
+
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PostCreateRequest;
+use App\Http\Requests\PostUpdateRequest;
 use App\Models\Post;
 use App\Services\PostService;
 use Illuminate\Http\JsonResponse;
@@ -68,13 +69,29 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(PostUpdateRequest $request, string $id): JsonResponse
     {
-        //
+        $post = Post::findOrFail($id);
+
+        if ($post->user_id !== auth()->id()){
+            return response()->json([
+                'message' => 'Недостаточно прав'
+            ], 403);
+        }
+
+        $updatePost = $this->postService->UserUpdatePost(
+            $post,
+            $request->validated()
+        );
+
+        return response()->json([
+            'message' => 'Ваш пост успешно изменен',
+            'post' => $updatePost
+        ]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove post belongs to user.
      */
     public function destroy(string $id)
     {

@@ -18,3 +18,4 @@ Route::post('/posts', [PostController::class, 'indexAll']);
     Route::post('/post/create', [PostController::class, 'store'])->middleware('auth:sanctum');
     Route::get('/post/{post}', [PostController::class, 'show'])->middleware('auth:sanctum');
     Route::delete('/post/{post}', [PostController::class, 'destroy'])->middleware('auth:sanctum');
+    Route::patch('/post/{post}', [PostController::class, 'update'])->middleware('auth:sanctum');
