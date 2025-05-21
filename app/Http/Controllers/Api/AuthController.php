@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DTO\LoginDTO;
+use App\DTO\UserDTO;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -29,11 +32,18 @@ class AuthController extends Controller
      */
     public function register(RegisterUserRequest $request): JsonResponse
     {
-        $user = $this->userService->registerUser($request->validated());
+
+        $userDTO = new UserDTO(
+            firstName: $request->validated('first_name'),
+            lastName: $request->validated('last_name'),
+            email: $request->validated('email'),
+            password: $request->validated('password'),
+
+        );
+
+        $user = $this->userService->registerUser($userDTO);
         $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
         \Auth::login($user);
-
-        //Email Message
 
         return (new UserResource($user))->additional([
             'message' => 'User created successfully.',
@@ -47,29 +57,23 @@ class AuthController extends Controller
     /**
      * Login user and return token
      */
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
         /*Upgrade method and add chek user active or not
          * and send on email message*/
 
-        $validatedData = $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
-
-        $user = User::where('email', $validatedData['email'])->first();
-
-        if (!$user || !Hash::check($validatedData['password'], $user->password)) {
-            throw ValidationException::withMessages([
-               'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
+        $user = $this->userService->loginUser(
+            new LoginDTO(
+                email: $request->validated('email'),
+                password: $request->validated('password')
+            )
+        );
 
         $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
 
         return response()->json([
-            'user' => $user,
-            'token' => $token
+            'user' => new UserResource($user),
+            'token' => $token,
         ]);
     }
 
