@@ -62,7 +62,7 @@ class PostController extends Controller
             ]);
         }
         return response()->json([
-            'message' => 'Пост не найден'
+            'message' => 'Post not found.',
         ], 404);
     }
 
@@ -75,7 +75,7 @@ class PostController extends Controller
 
         if ($post->user_id !== auth()->id()){
             return response()->json([
-                'message' => 'Недостаточно прав'
+                'message' => 'You are not allowed to update this post.',
             ], 403);
         }
 
@@ -85,7 +85,7 @@ class PostController extends Controller
         );
 
         return response()->json([
-            'message' => 'Ваш пост успешно изменен',
+            'message' => 'Post updated successfully.',
             'post' => $updatePost
         ]);
     }

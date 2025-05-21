@@ -32,10 +32,10 @@ class PostCreateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.required.' => 'Заголовок поста обязателен',
-            'title.max' => 'Заголовок должен быть не больше 55 символов',
-            'content.required' => 'Описание поста обязательно',
-            'content.max' => 'Описание поста должно быть не больше 255 символов',
+            'title.required.' => 'The title field is required.',
+            'title.max' => 'The title may not be greater than 55 characters.',
+            'content.required' => 'The content field is required.',
+            'content.max' => 'The content may not be greater than 255 characters.',
         ];
     }
 
@@ -44,7 +44,7 @@ class PostCreateRequest extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'success' => false,
-                'message' => 'Ошибка при создании поста',
+                'message' => 'Validation failed.',
                 'errors' => $validator->errors()
             ], 422)
         );

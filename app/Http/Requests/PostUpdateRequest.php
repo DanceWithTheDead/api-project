@@ -30,8 +30,8 @@ class PostUpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.max' => 'Заголовок должен быть не больше 55 символов',
-            'content.max' => 'Описание поста должно быть не больше 255 символов',
+            'title.max' => 'The title may not be greater than 55 characters.',
+            'content.max' => 'The content may not be greater than 255 characters.',
         ];
     }
 }

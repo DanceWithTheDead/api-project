@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterUserRequest;
+use App\Http\Resources\AuthResource;
 use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
@@ -35,14 +36,11 @@ class AuthController extends Controller
 
         //Email Message
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Пользователь успешно зарегистрирован',
-            'data' => [
-                'user' => $user->only(['id', 'first_name', 'last_name', 'email']),
-                'token' => $token
-            ]
-        ], 201);
+        return (new AuthResource($user))->additional([
+            'token' => $token,
+        ])
+            ->response()
+            ->setStatusCode(201);
     }
 
 
@@ -64,7 +62,7 @@ class AuthController extends Controller
 
         if (!$user || !Hash::check($validatedData['password'], $user->password)) {
             throw ValidationException::withMessages([
-               'email' => ['Введите корректные данные'],
+               'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
@@ -85,7 +83,7 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Вы успешно вышли'
+            'message' => 'Logged out successfully.',
         ]);
     }
 

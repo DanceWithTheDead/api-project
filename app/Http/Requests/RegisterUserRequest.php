@@ -38,13 +38,13 @@ class RegisterUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'first_name.required' => 'Имя обязательно для заполнения',
-            'last_name.required' => 'Фамилия обязательна для заполнения',
-            'email.required' => 'Email обязателен',
-            'email.email' => 'Некорректный формат email',
-            'email.unique' => 'Этот email уже зарегистрирован',
-            'password.required' => 'Пароль обязателен',
-            'password.min' => 'Пароль должен быть больше 8 символов',
+            'first_name.required' => 'First name is required.',
+            'last_name.required' => 'Last name is required.',
+            'email.required' => 'Email is required.',
+            'email.email' => 'Invalid email.',
+            'email.unique' => 'Email already exists.',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 8 characters.',
         ];
     }
 
@@ -53,7 +53,7 @@ class RegisterUserRequest extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'success' => false,
-                'message' => 'Ошибка регистрации',
+                'message' => 'Validation failed.',
                 'errors' => $validator->errors()
             ], 422)
         );
