@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterUserRequest;
-use App\Http\Resources\AuthResource;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
@@ -36,7 +36,8 @@ class AuthController extends Controller
 
         //Email Message
 
-        return (new AuthResource($user))->additional([
+        return (new UserResource($user))->additional([
+            'message' => 'User created successfully.',
             'token' => $token,
         ])
             ->response()
@@ -51,7 +52,6 @@ class AuthController extends Controller
     {
         /*Upgrade method and add chek user active or not
          * and send on email message*/
-
 
         $validatedData = $request->validate([
             'email' => 'required|string|email',
@@ -74,7 +74,6 @@ class AuthController extends Controller
         ]);
     }
 
-
     /**
      * Logout user (revoke token)
      */
@@ -87,10 +86,4 @@ class AuthController extends Controller
         ]);
     }
 
-    public function getUser(Request $request)
-    {
-        return response()->json([
-            $request->user()
-        ]);
-    }
 }
