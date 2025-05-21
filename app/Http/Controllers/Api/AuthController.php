@@ -33,6 +33,8 @@ class AuthController extends Controller
         $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
         \Auth::login($user);
 
+        //Email Message
+
         return response()->json([
             'success' => true,
             'message' => 'Пользователь успешно зарегистрирован',
@@ -49,6 +51,10 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
+        /*Upgrade method and add chek user active or not
+         * and send on email message*/
+
+
         $validatedData = $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -61,7 +67,9 @@ class AuthController extends Controller
                'email' => ['Введите корректные данные'],
             ]);
         }
+
         $token = $user->createToken(self::TOKEN_NAME)->plainTextToken;
+
         return response()->json([
             'user' => $user,
             'token' => $token
