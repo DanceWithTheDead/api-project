@@ -12,12 +12,17 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/posts', [PostController::class, 'indexAll']);
 
     //Роуты доступные только при авторизации.
-    Route::post('/logout', [AuthController::class, 'logOut'])->middleware('auth:sanctum');
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [AuthController::class, 'logOut']);
+        Route::post('/user/info', [UserController::class, 'show'])->name('user.info');
+        Route::patch('/user/update', [UserController::class, 'update'])->name('user.update');
+    });
 
-    Route::post('/user/info', [UserController::class, 'index'])->name('user.info')->middleware('auth:sanctum');
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/posts/user', [PostController::class, 'index'])->name('post.user');
+        Route::post('/post/create', [PostController::class, 'store'])->name('post.create');
+        Route::get('/post/{post}', [PostController::class, 'show'])->name('post.show');
+        Route::patch('/post/{post}', [PostController::class, 'update'])->name('post.update');
+        Route::delete('/post/{post}', [PostController::class, 'destroy'])->name('post.destroy');
+    });
 
-    Route::post('/post/user', [PostController::class, 'index'])->middleware('auth:sanctum');
-    Route::post('/post/create', [PostController::class, 'store'])->middleware('auth:sanctum');
-    Route::get('/post/{post}', [PostController::class, 'show'])->middleware('auth:sanctum');
-    Route::patch('/post/{post}', [PostController::class, 'update'])->middleware('auth:sanctum');
-    Route::delete('/post/{post}', [PostController::class, 'destroy'])->middleware('auth:sanctum');

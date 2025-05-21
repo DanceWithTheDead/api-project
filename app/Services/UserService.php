@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-class AuthService
+class UserService
 {
     public function registerUser(array $data): User
     {
@@ -17,4 +17,14 @@ class AuthService
         ]);
     }
 
+    public function updateUser(User $user, array $data): User
+    {
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        $user->update($data);
+        return $user->fresh();
+
+    }
 }
