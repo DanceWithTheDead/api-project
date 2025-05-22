@@ -16,6 +16,7 @@ Route::post('/posts', [PostController::class, 'indexAll']);
         Route::post('/logout', [AuthController::class, 'logOut']);
         Route::post('/user/info', [UserController::class, 'show'])->name('user.info');
         Route::patch('/user/update', [UserController::class, 'update'])->name('user.update');
+        Route::delete('/user/delete', [UserController::class, 'destroy'])->name('user.destroy');
     });
 
     Route::middleware('auth:sanctum')->group(function () {

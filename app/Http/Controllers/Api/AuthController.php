@@ -8,12 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterUserRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+
 
 class AuthController extends Controller
 {
@@ -25,7 +23,6 @@ class AuthController extends Controller
     {
         $this->userService = $userService;
     }
-
 
     /**
      * Register a new user
@@ -53,14 +50,11 @@ class AuthController extends Controller
             ->setStatusCode(201);
     }
 
-
     /**
      * Login user and return token
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        /*Upgrade method and add chek user active or not
-         * and send on email message*/
 
         $user = $this->userService->loginUser(
             new LoginDTO(
@@ -88,5 +82,4 @@ class AuthController extends Controller
             'message' => 'Logged out successfully.',
         ]);
     }
-
 }

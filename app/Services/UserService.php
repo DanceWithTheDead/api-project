@@ -42,12 +42,18 @@ class UserService
 
     public function updateUser(User $user, array $data): User
     {
-        if (isset($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        }
-
         $user->update($data);
         return $user->fresh();
+
+    }
+
+    public function deleteUser(User $user, bool $force = false)
+    {
+        if ($force) {
+            $user->forceDelete();
+        } else {
+            $user->delete();
+        }
 
     }
 }

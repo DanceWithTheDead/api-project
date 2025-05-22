@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
 
-    private $userService;
+    protected $userService;
 
     public function __construct(UserService $userService)
     {
@@ -24,36 +23,31 @@ class UserController extends Controller
      */
     public function show()
     {
-        $user = auth()->user();
-
-        return new UserResource($user);
+        return new UserResource(Auth::user());
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(UpdateUserRequest $request)
     {
-        $user = Auth::user();
+        $updatedUser = $this->userService->updateUser(
+            Auth::user(),
+            $request->validated()
+        );
 
-        $validatedData = $request->validate([
-            'first_name' => 'sometimes|string|max:255',
-            'last_name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,'.$user->id,
-            'password' => 'sometimes|min:8|confirmed',
-            'avatar' => 'sometimes|image|max:2048'
-        ]);
-
-        $updateUser = $this->userService->UpdateUser($user, $validatedData);
-
-        return new UserResource($updateUser);
+        return new UserResource($updatedUser);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy()
     {
-        //
+        $this->userService->DeleteUser(Auth::user());
+
+        return response()->json([
+            'message' => 'User deleted'
+        ]);
     }
 }

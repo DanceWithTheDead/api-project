@@ -25,7 +25,7 @@ class UserResource extends JsonResource
                 'Created' => $this->when(Route::currentRouteName() == 'user.info',
                     Carbon::parse($this->created_at)->format('d-m-Y H:i:s')),
                 'Updated' => $this->when(\Route::currentRouteName() == 'user.update',
-                    Carbon::parse($this->updated_at)->format('d-m-Y H:i:s')),
+                    Carbon::parse($this->updated_at)->format('d-m-Y H:i:s'))
 
             ],
             'token' => $this->when($this->token, $this->token)
